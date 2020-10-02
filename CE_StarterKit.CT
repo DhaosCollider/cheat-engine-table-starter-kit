@@ -15,7 +15,7 @@ local reqCEVersion = 7.1
 local msgVersion   = 'You using Cheat Engine '..getCEVersion()..'.\nRequired that you use Cheat Engine '..reqCEVersion..' or later.'
 local msgProcess   = 'Select a process to open.'
 local compactMode  = 'Compact mode'
-local gameNameVer  = 'Fill_in_Game_name_&amp;_version'
+local gameNameVer  = 'Fill_in_Game_name_version'
 
 [ENABLE]
 
@@ -100,7 +100,7 @@ return Compact.addMenu()
             </CheatEntry>
             <CheatEntry>
               <ID>551</ID>
-              <Description>"Fill_in_Game_name_&amp;_version"</Description>
+              <Description>"Fill_in_Game_name_version"</Description>
               <LastState/>
               <Color>808080</Color>
               <VariableType>Auto Assembler Script</VariableType>
