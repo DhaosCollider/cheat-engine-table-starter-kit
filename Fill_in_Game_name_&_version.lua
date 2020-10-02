@@ -8,11 +8,11 @@ local _msg    = 'Author: '.._author..'\nError : '.._type..' '
 
 local Author = {[[
 // Script_name
-AOB
+aobscanmodule
 registersymbol
 ]],[[
 // Script_name
-AOB
+aobscanregion
 registersymbol
 ]]}
 
