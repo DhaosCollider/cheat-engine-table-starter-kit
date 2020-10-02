@@ -21,3 +21,4 @@ for i = 1, #Author do
 end
 -- {$asm}
 -- [DISABLE]
+-- unregistersymbol
