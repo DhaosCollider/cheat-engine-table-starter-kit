@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="31">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>491</ID>
+      <Description>"Enable &gt;&gt; Check the box."</Description>
+      <Options moDeactivateChildrenAsWell="1"/>
+      <LastState/>
+      <Color>0000FF</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript Async="1">{$lua}
+if syntaxcheck then return end
+
+local reqCEVersion = 7.1
+local msgVersion   = 'You using Cheat Engine '..getCEVersion()..'.\nRequired that you use Cheat Engine '..reqCEVersion..' or later.'
+local msgProcess   = 'Select a process to open.'
+local compactMode  = 'Compact mode'
+local gameNameVer  = 'Fill_in_Game_name_&amp;_version'
+
+[ENABLE]
+
+if getCEVersion == nil or getCEVersion() &lt; reqCEVersion then
+  error(messageDialog(msgVersion, 2, 2))
+elseif process == nil then
+  error(messageDialog(msgProcess, 2, 2))
+else
+  getAddressList().getMemoryRecordByDescription(compactMode).Active = true
+  getAddressList().getMemoryRecordByDescription(gameNameVer).Active = true
+  memrec.Description, memrec.Color = 'Enable &lt;&lt; '..gameNameVer, 0x00808000
+end
+
+[DISABLE]
+
+getAddressList().getMemoryRecordByDescription(gameNameVer).Active = false
+memrec.Description, memrec.Color = 'Enable &lt;&lt; void', 0x000000FF
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>435</ID>
+          <Description>"For Coders"</Description>
+          <LastState Value="" RealAddress="00000000"/>
+          <Color>C0C0C0</Color>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>552</ID>
+              <Description>"Use mono"</Description>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+usemono()
+
+[DISABLE]
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>549</ID>
+              <Description>"Compact mode"</Description>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{$lua}
+if syntaxcheck then return end
+--[[
+Credit:
+  mgr.inz.Player (https://forum.cheatengine.org/viewtopic.php?t=570055)
+
+Thanks for the info.
+]]
+local Compact = {}
+
+Compact[1], Compact[2], Compact[3] = 'Compact View Mode', 'Full View Mode', 'yes'
+
+function Compact.addMenu()
+  if compactManualReadyExists then return end
+  local parent = getMainForm().Menu.Items
+  compactMenuItem = createMenuItem(parent)
+  parent.add(compactMenuItem)
+  compactMenuItem.Caption  = Compact[1]
+  compactManualReadyExists = Compact[3]
+  compactMenuItem.OnClick  = Compact.cycleFull
+end
+
+function Compact.cycleFull()
+  local state = not (compactMenuItem.Caption == Compact[1])
+  compactMenuItem.Caption = state and Compact[1] or Compact[2]
+  getMainForm().Splitter1.Visible = state
+  getMainForm().Panel4.Visible    = state
+  getMainForm().Panel5.Visible    = state
+end
+
+[ENABLE]
+
+return Compact.addMenu()
+
+[DISABLE]
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>551</ID>
+              <Description>"Fill_in_Game_name_&amp;_version"</Description>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+
+local _author = ''
+local _type   = 'aobscan'
+local _msg    = 'Author: '.._author..'\nError : '.._type..' '
+
+local Author = {[[
+// Script_name
+AOB
+registersymbol
+]],[[
+// Script_name
+AOB
+registersymbol
+]]}
+
+for i = 1, #Author do
+  if autoAssemble(Author[i]) == false then print(_msg..Author[i]) end
+end
+{$asm}
+[DISABLE]
+
+</AssemblerScript>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
