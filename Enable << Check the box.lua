@@ -1,5 +1,5 @@
 -- {$lua}
--- if syntaxcheck then return end
+if syntaxcheck then return end
 
 local reqCEVersion = 7.1
 local msgVersion   = 'You using Cheat Engine '..getCEVersion()..'.\nRequired that you use Cheat Engine '..reqCEVersion..' or later.'
