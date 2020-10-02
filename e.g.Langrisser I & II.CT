@@ -1,0 +1,1532 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="31">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>491</ID>
+      <Description>"Enable &lt;&lt; Check the box."</Description>
+      <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+      <LastState/>
+      <Color>0000FF</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript Async="1">{$lua}
+if syntaxcheck then return end
+
+local reqCEVersion = 7.0
+local msgVersion   = 'You using Cheat Engine '..getCEVersion()..'.\nRequired that you use Cheat Engine '..reqCEVersion..' or later.'
+local msgProcess   = 'Select a process to open.'
+local compactMode  = 'Compact mode'
+local gameNameVer  = 'Langrisser I &amp; II on Steam'
+
+[ENABLE]
+
+if getCEVersion == nil or getCEVersion() &lt; reqCEVersion then
+  error(messageDialog(msgVersion, 2, 2))
+elseif process == nil then
+  error(messageDialog(msgProcess, 2, 2))
+else
+  getAddressList().getMemoryRecordByDescription('Use mono').Active  = true
+  getAddressList().getMemoryRecordByDescription(compactMode).Active = true
+  getAddressList().getMemoryRecordByDescription(gameNameVer).Active = true
+  memrec.Description, memrec.Color = 'Enable &lt;&lt; '..gameNameVer, 0x00808000
+end
+
+[DISABLE]
+
+getAddressList().getMemoryRecordByDescription(gameNameVer).Active = false
+memrec.Description, memrec.Color = 'Enable &lt;&lt; void', 0x000000FF
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>98</ID>
+          <Description>"Infinite HP"</Description>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1024,heal_hp_aob)
+
+newmem:
+  pushf
+  cmp dword ptr [rax+3C],#2 // #2 = enemy unit
+  je @f
+  mov dword ptr [rbp-18],#0 // #0 = damage
+  mov [rax+60],r15d // r15d = hp cap
+@@:
+  popf
+  readmem(heal_hp_aob,6) // write to hp
+  jmp return
+
+heal_hp_aob:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+heal_hp_aob:
+  db 03 4D E8 89 48 60
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: UnitCTRL:AddHP+37
+
+206CC83AD5B: 48 8B F9                       -  mov rdi,rcx
+206CC83AD5E: 48 89 55 E8                    -  mov [rbp-18],rdx
+206CC83AD62: BA 01 00 00 00                 -  mov edx,00000001
+206CC83AD67: 48 83 EC 20                    -  sub rsp,20
+206CC83AD6B: 49 BB 80 3D 0B 93 06 02 00 00  -  mov r11,00000206930B3D80
+206CC83AD75: 41 FF D3                       -  call r11
+206CC83AD78: 48 83 C4 20                    -  add rsp,20
+206CC83AD7C: 4C 8B F8                       -  mov r15,rax
+206CC83AD7F: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83AD83: 48 63 48 60                    -  movsxd  rcx,dword ptr [rax+60]
+// ---------- INJECTING HERE ----------
+206CC83AD87: 03 4D E8                       -  add ecx,[rbp-18]
+206CC83AD8A: 89 48 60                       -  mov [rax+60],ecx
+// ---------- DONE INJECTING  ----------
+206CC83AD8D: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83AD91: 48 63 40 60                    -  movsxd  rax,dword ptr [rax+60]
+206CC83AD95: 83 F8 FF                       -  cmp eax,-01
+206CC83AD98: 7F 0B                          -  jg 206CC83ADA5
+206CC83AD9A: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83AD9E: C7 40 60 00 00 00 00           -  mov [rax+60],00000000
+206CC83ADA5: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83ADA9: 48 63 40 60                    -  movsxd  rax,dword ptr [rax+60]
+206CC83ADAD: 41 3B C7                       -  cmp eax,r15d
+206CC83ADB0: 7E 08                          -  jle 206CC83ADBA
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>25</ID>
+          <Description>"Infinite MP"</Description>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1000,heal_mp_aob)
+
+newmem:
+  pushf
+  cmp dword ptr [rax+3C],#2 // enemy unit
+  je @f
+  mov dword ptr [rbp-18],#0 // #0 = cost
+  mov [rax+60],r15d // r15d = mp cap
+@@:
+  popf
+  readmem(heal_mp_aob,6) // write to mp
+  jmp return
+
+heal_mp_aob:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+heal_mp_aob:
+  db 03 4D E8 89 48 64
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: UnitCTRL:AddMP+37
+
+206CC842D9B: 48 8B F9                       -  mov rdi,rcx
+206CC842D9E: 48 89 55 E8                    -  mov [rbp-18],rdx
+206CC842DA2: BA 01 00 00 00                 -  mov edx,00000001
+206CC842DA7: 48 83 EC 20                    -  sub rsp,20
+206CC842DAB: 49 BB E0 49 0B 93 06 02 00 00  -  mov r11,00000206930B49E0
+206CC842DB5: 41 FF D3                       -  call r11
+206CC842DB8: 48 83 C4 20                    -  add rsp,20
+206CC842DBC: 4C 8B F8                       -  mov r15,rax
+206CC842DBF: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC842DC3: 48 63 48 64                    -  movsxd  rcx,dword ptr [rax+64]
+// ---------- INJECTING HERE ----------
+206CC842DC7: 03 4D E8                       -  add ecx,[rbp-18]
+206CC842DCA: 89 48 64                       -  mov [rax+64],ecx
+// ---------- DONE INJECTING  ----------
+206CC842DCD: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC842DD1: 48 63 40 64                    -  movsxd  rax,dword ptr [rax+64]
+206CC842DD5: 83 F8 FF                       -  cmp eax,-01
+206CC842DD8: 7F 0B                          -  jg 206CC842DE5
+206CC842DDA: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC842DDE: C7 40 64 00 00 00 00           -  mov [rax+64],00000000
+206CC842DE5: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC842DE9: 48 63 40 64                    -  movsxd  rax,dword ptr [rax+64]
+206CC842DED: 41 3B C7                       -  cmp eax,r15d
+206CC842DF0: 7E 08                          -  jle 206CC842DFA
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>80</ID>
+          <Description>"Infinite movement (Commander only)"</Description>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1000,inf_move_aob)
+
+newmem:
+  mov dword ptr [rax+48],#0
+  readmem(inf_move_aob,7) // access unit level
+  jmp return
+
+inf_move_aob:
+  jmp newmem
+  nop 2
+return:
+
+[DISABLE]
+
+inf_move_aob:
+  db 48 63 40 58 89 45 B0
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: WindowManager:SetUnitSimpleInfo+c19
+
+249A3C7E026: 49 BB 30 F2 29 84 49 02 00 00  -  mov r11,000002498429F230
+249A3C7E030: 41 FF D3                       -  call r11
+249A3C7E033: 48 83 C4 20                    -  add rsp,20
+249A3C7E037: 49 8B 87 D0 01 00 00           -  mov rax,[r15+000001D0]
+249A3C7E03E: 48 89 85 38 FF FF FF           -  mov [rbp-000000C8],rax
+249A3C7E045: 48 63 45 94                    -  movsxd  rax,dword ptr [rbp-6C]
+249A3C7E049: FF C0                          -  inc eax
+249A3C7E04B: 48 89 85 30 FF FF FF           -  mov [rbp-000000D0],rax
+249A3C7E052: 83 3F 00                       -  cmp dword ptr [rdi],00
+249A3C7E055: 48 8B 47 18                    -  mov rax,[rdi+18]
+// ---------- INJECTING HERE ----------
+249A3C7E059: 48 63 40 58                    -  movsxd  rax,dword ptr [rax+58]
+249A3C7E05D: 89 45 B0                       -  mov [rbp-50],eax
+// ---------- DONE INJECTING  ----------
+249A3C7E060: 48 8B CD                       -  mov rcx,rbp
+249A3C7E063: 48 83 C1 B0                    -  add rcx,-50
+249A3C7E067: 48 83 EC 20                    -  sub rsp,20
+249A3C7E06B: 49 BB E0 1C E3 F3 49 02 00 00  -  mov r11,00000249F3E31CE0
+249A3C7E075: 41 FF D3                       -  call r11
+249A3C7E078: 48 83 C4 20                    -  add rsp,20
+249A3C7E07C: 4C 8B C0                       -  mov r8,rax
+249A3C7E07F: 48 8B 85 38 FF FF FF           -  mov rax,[rbp-000000C8]
+249A3C7E086: 48 8B 95 30 FF FF FF           -  mov rdx,[rbp-000000D0]
+249A3C7E08D: 48 8B C8                       -  mov rcx,rax
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>89</ID>
+          <Description>"Physical damage multiplier"</Description>
+          <Options moHideChildren="1"/>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1000,damage_aob)
+registersymbol(damage_multiplier)
+
+newmem:
+  readmem(damage_aob,5) // access pointer of physical damage
+  pushf
+  test edx,edx // #0 = player unit
+  jne @f
+  imul ecx,[damage_multiplier]
+@@:
+  popf
+  jmp return
+  align 04 CC
+
+damage_multiplier:
+  dd #2
+
+damage_aob:
+  jmp newmem
+return:
+
+[DISABLE]
+
+damage_aob:
+  db 48 8D 44 90 20
+
+unregistersymbol(damage_multiplier)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: BattleSceneManager:MakeBattleSceneInfo+13c3
+
+1AC8D82B80B: 48 89 85 68 FF FF FF           -  mov [rbp-00000098],rax
+1AC8D82B812: B9 0A 00 00 00                 -  mov ecx,0000000A
+1AC8D82B817: 49 8B C6                       -  mov rax,r14
+1AC8D82B81A: 99                             -  cdq 
+1AC8D82B81B: F7 F9                          -  idiv ecx
+1AC8D82B81D: 48 8B C8                       -  mov rcx,rax
+1AC8D82B820: 48 8B 85 68 FF FF FF           -  mov rax,[rbp-00000098]
+1AC8D82B827: 48 63 D7                       -  movsxd  rdx,edi
+1AC8D82B82A: 39 50 18                       -  cmp [rax+18],edx
+1AC8D82B82D: 0F 86 FB 22 00 00              -  jbe 1AC8D82DB2E
+// ---------- INJECTING HERE ----------
+1AC8D82B833: 48 8D 44 90 20                 -  lea rax,[rax+rdx*4+20]
+// ---------- DONE INJECTING  ----------
+1AC8D82B838: 89 08                          -  mov [rax],ecx
+1AC8D82B83A: 41 83 FD 01                    -  cmp r13d,01
+1AC8D82B83E: 0F 85 D2 00 00 00              -  jne 1AC8D82B916
+1AC8D82B844: 48 8B 46 10                    -  mov rax,[rsi+10]
+1AC8D82B848: 48 8B 40 50                    -  mov rax,[rax+50]
+1AC8D82B84C: 48 63 CF                       -  movsxd  rcx,edi
+1AC8D82B84F: 39 48 18                       -  cmp [rax+18],ecx
+1AC8D82B852: 0F 86 CC 22 00 00              -  jbe 1AC8D82DB24
+1AC8D82B858: 48 8D 44 88 20                 -  lea rax,[rax+rcx*4+20]
+1AC8D82B85D: 48 63 00                       -  movsxd  rax,dword ptr [rax]
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>90</ID>
+              <Description>"Times"</Description>
+              <VariableType>Byte</VariableType>
+              <Address>damage_multiplier</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>92</ID>
+          <Description>"Attack spell damage multiplier"</Description>
+          <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1024,magic_damage_aob)
+registersymbol(magic_damage_multiplier)
+
+newmem:
+  pushf
+  test ebx,ebx // #0 = player unit
+  jne @f
+  imul ecx,[magic_damage_multiplier]
+@@:
+  popf
+  readmem(magic_damage_aob+0D,5) // access pointer of attack spell damage
+  jmp return
+  align 04 CC
+
+magic_damage_multiplier:
+  dd #2
+
+magic_damage_aob+0D:
+  jmp newmem
+return:
+
+[DISABLE]
+
+magic_damage_aob+0D:
+  db 48 8D 44 90 20
+
+unregistersymbol(magic_damage_multiplier)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: BattleSceneManager:MakeMagicSceneInfo+1ed
+
+1AC8D858B62: FF 75 30                       -  push [rbp+30]
+1AC8D858B65: 48 83 EC 20                    -  sub rsp,20
+1AC8D858B69: 49 BB 90 93 85 8D AC 01 00 00  -  mov r11,000001AC8D859390
+1AC8D858B73: 41 FF D3                       -  call r11
+1AC8D858B76: 48 83 C4 30                    -  add rsp,30
+1AC8D858B7A: 48 8B C8                       -  mov rcx,rax
+1AC8D858B7D: 48 8B 45 98                    -  mov rax,[rbp-68]
+1AC8D858B81: 49 63 D5                       -  movsxd  rdx,r13d
+1AC8D858B84: 39 50 18                       -  cmp [rax+18],edx
+1AC8D858B87: 0F 86 68 06 00 00              -  jbe 1AC8D8591F5
+// ---------- INJECTING HERE ----------
+1AC8D858B8D: 48 8D 44 90 20                 -  lea rax,[rax+rdx*4+20]
+// ---------- DONE INJECTING  ----------
+1AC8D858B92: 89 08                          -  mov [rax],ecx
+1AC8D858B94: 49 8B 44 24 18                 -  mov rax,[r12+18]
+1AC8D858B99: 48 8B 40 38                    -  mov rax,[rax+38]
+1AC8D858B9D: 49 63 CD                       -  movsxd  rcx,r13d
+1AC8D858BA0: 39 48 18                       -  cmp [rax+18],ecx
+1AC8D858BA3: 0F 86 45 06 00 00              -  jbe 1AC8D8591EE
+1AC8D858BA9: 48 8D 44 88 20                 -  lea rax,[rax+rcx*4+20]
+1AC8D858BAE: C7 00 01 00 00 00              -  mov [rax],00000001
+1AC8D858BB4: 41 FF C5                       -  inc r13d
+1AC8D858BB7: 45 3B EE                       -  cmp r13d,r14d
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>93</ID>
+              <Description>"Times"</Description>
+              <VariableType>Byte</VariableType>
+              <Address>magic_damage_multiplier</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>84</ID>
+          <Description>"Get EXP multiplier"</Description>
+          <Options moHideChildren="1"/>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+
+alloc(newmem,$1000,get_exp_aob)
+registersymbol(exp_multiplier)
+
+newmem:
+  readmem(get_exp_aob,2)
+  imul eax,[exp_multiplier]
+  readmem(get_exp_aob+02,3) // write to exp
+  jmp return
+  align 04 CC
+
+exp_multiplier:
+  dd #4 // times
+
+get_exp_aob:
+  jmp newmem
+return:
+
+[DISABLE]
+
+get_exp_aob:
+  db F7 F9 89 45 C8
+
+
+unregistersymbol(exp_multiplier)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: MapMain:CheckUnitEXP+242
+
+249A3CD088C: B8 0A 00 00 00                 -  mov eax,0000000A
+249A3CD0891: 83 FB 09                       -  cmp ebx,09
+249A3CD0894: 4C 0F 44 F8                    -  cmove r15,rax
+249A3CD0898: B8 0A 00 00 00                 -  mov eax,0000000A
+249A3CD089D: 83 FB 0A                       -  cmp ebx,0A
+249A3CD08A0: 4C 0F 4D F8                    -  cmovge r15,rax
+249A3CD08A4: 48 63 45 C8                    -  movsxd  rax,dword ptr [rbp-38]
+249A3CD08A8: 41 0F AF C7                    -  imul eax,r15d
+249A3CD08AC: B9 64 00 00 00                 -  mov ecx,00000064
+249A3CD08B1: 99                             -  cdq 
+// ---------- INJECTING HERE ----------
+249A3CD08B2: F7 F9                          -  idiv ecx
+249A3CD08B4: 89 45 C8                       -  mov [rbp-38],eax
+// ---------- DONE INJECTING  ----------
+249A3CD08B7: B9 01 00 00 00                 -  mov ecx,00000001
+249A3CD08BC: 85 C0                          -  test eax,eax
+249A3CD08BE: 48 63 45 C8                    -  movsxd  rax,dword ptr [rbp-38]
+249A3CD08C2: 48 0F 4E C1                    -  cmovle rax,rcx
+249A3CD08C6: 89 45 C8                       -  mov [rbp-38],eax
+249A3CD08C9: E9 F9 00 00 00                 -  jmp 249A3CD09C7
+249A3CD08CE: 83 3F 00                       -  cmp dword ptr [rdi],00
+249A3CD08D1: 48 8B 47 30                    -  mov rax,[rdi+30]
+249A3CD08D5: 48 63 40 78                    -  movsxd  rax,dword ptr [rax+78]
+249A3CD08D9: 89 45 C8                       -  mov [rbp-38],eax
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>85</ID>
+              <Description>"Times"</Description>
+              <VariableType>Byte</VariableType>
+              <Address>exp_multiplier</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>96</ID>
+          <Description>"Get Gold multiplier"</Description>
+          <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1000,get_money_aob)
+registersymbol(get_money_multiplier)
+
+newmem:
+  imul eax,[get_money_multiplier]
+  readmem(get_money_aob+01,6) // write to gold
+  jmp return
+  align 04 CC
+
+get_money_multiplier:
+  dd #4 // times
+
+get_money_aob+01:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+get_money_aob+01:
+  db 89 45 C8 83 3F 00
+
+unregistersymbol(get_money_multiplier)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: MapMain:CheckUnitEXP+269
+
+2A9357CEA02: E9 F9 15 7F FF                 -  jmp 2A934FC0000
+2A9357CEA07: B9 01 00 00 00                 -  mov ecx,00000001
+2A9357CEA0C: 85 C0                          -  test eax,eax
+2A9357CEA0E: 48 63 45 C8                    -  movsxd  rax,dword ptr [rbp-38]
+2A9357CEA12: 48 0F 4E C1                    -  cmovle rax,rcx
+2A9357CEA16: 89 45 C8                       -  mov [rbp-38],eax
+2A9357CEA19: E9 F9 00 00 00                 -  jmp 2A9357CEB17
+2A9357CEA1E: 83 3F 00                       -  cmp dword ptr [rdi],00
+2A9357CEA21: 48 8B 47 30                    -  mov rax,[rdi+30]
+2A9357CEA25: 48 63 40 78                    -  movsxd  rax,dword ptr [rax+78]
+// ---------- INJECTING HERE ----------
+2A9357CEA29: 89 45 C8                       -  mov [rbp-38],eax
+2A9357CEA2C: 83 3F 00                       -  cmp dword ptr [rdi],00
+// ---------- DONE INJECTING  ----------
+2A9357CEA2F: 48 8B 47 30                    -  mov rax,[rdi+30]
+2A9357CEA33: 48 63 40 38                    -  movsxd  rax,dword ptr [rax+38]
+2A9357CEA37: 85 C0                          -  test eax,eax
+2A9357CEA39: 0F 85 D8 00 00 00              -  jne 2A9357CEB17
+2A9357CEA3F: 48 8B CF                       -  mov rcx,rdi
+2A9357CEA42: 48 83 EC 20                    -  sub rsp,20
+2A9357CEA46: 83 3F 00                       -  cmp dword ptr [rdi],00
+2A9357CEA49: 49 BB EE F0 7B 35 A9 02 00 00  -  mov r11,000002A9357BF0EE
+2A9357CEA53: 41 FF D3                       -  call r11
+2A9357CEA56: 48 83 C4 20                    -  add rsp,20
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>97</ID>
+              <Description>"Times"</Description>
+              <VariableType>Byte</VariableType>
+              <Address>get_money_multiplier</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>78</ID>
+          <Description>"Infinite Class points"</Description>
+          <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1000,cp_max)
+registersymbol(code_cp_max1)
+registersymbol(code_cp_max2)
+
+newmem:
+  code_cp_max1:
+    pushf
+    cmp dword ptr [rax+3C],#2 // enemy unit
+    je @f
+    mov dword ptr [rax+68],#9999 // cp cap
+  @@:
+    popf
+    readmem(cp_max1,7) // write to cp (check commander info)
+    jmp return
+    align 10 CC
+
+  code_cp_max2:
+    mov dword ptr [rax+68],#9999 // cp cap
+    readmem(cp_max2,7) // write to cp (check class tree)
+    jmp return1
+
+cp_max:
+  jmp cp_max+07 // jmp cp cap
+  nop 3
+
+cp_max1:
+  jmp code_cp_max1
+  nop 2
+return:
+
+cp_max2:
+  jmp code_cp_max2
+  nop 2
+return1:
+
+[DISABLE]
+
+cp_max:
+  db 3D 10 27 00 00
+
+cp_max1:
+  db 48 63 40 68 89 45 98
+
+cp_max2:
+  db 48 63 40 68 89 45 C0
+
+unregistersymbol(code_cp_max1)
+unregistersymbol(code_cp_max2)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: UnitCTRL:AddClassPoint+27
+
+249842D31F3: 18 48 89              -  sbb [rax-77],cl
+249842D31F6: 3C 24                 -  cmp al,24
+249842D31F8: 48 8B F9              -  mov rdi,rcx
+249842D31FB: 48 89 54 24 08        -  mov [rsp+08],rdx
+249842D3200: 48 8B 47 18           -  mov rax,[rdi+18]
+249842D3204: 48 63 48 68           -  movsxd  rcx,dword ptr [rax+68]
+249842D3208: 03 4C 24 08           -  add ecx,[rsp+08]
+249842D320C: 89 48 68              -  mov [rax+68],ecx
+249842D320F: 48 8B 47 18           -  mov rax,[rdi+18]
+249842D3213: 48 63 40 68           -  movsxd  rax,dword ptr [rax+68]
+// ---------- INJECTING HERE ----------
+249842D3217: 3D 10 27 00 00        -  cmp eax,00002710
+// ---------- DONE INJECTING  ----------
+249842D321C: 7C 0B                 -  jl 249842D3229
+249842D321E: 48 8B 47 18           -  mov rax,[rdi+18]
+249842D3222: C7 40 68 0F 27 00 00  -  mov [rax+68],0000270F
+249842D3229: 48 8B 47 18           -  mov rax,[rdi+18]
+249842D322D: 48 63 40 68           -  movsxd  rax,dword ptr [rax+68]
+249842D3231: 83 F8 FF              -  cmp eax,-01
+249842D3234: 7F 0B                 -  jg 249842D3241
+249842D3236: 48 8B 47 18           -  mov rax,[rdi+18]
+249842D323A: C7 40 68 00 00 00 00  -  mov [rax+68],00000000
+249842D3241: 48 8B 3C 24           -  mov rdi,[rsp]
+}
+{
+// ORIGINAL CODE - INJECTION POINT: WindowManager:ChangeCommanderInfo+4a1
+
+249842F042F: 48 83 EC 20                    -  sub rsp,20
+249842F0433: 83 38 00                       -  cmp dword ptr [rax],00
+249842F0436: 49 BB 20 56 2A 84 49 02 00 00  -  mov r11,00000249842A5620
+249842F0440: 41 FF D3                       -  call r11
+249842F0443: 48 83 C4 20                    -  add rsp,20
+249842F0447: 48 8B 45 80                    -  mov rax,[rbp-80]
+249842F044B: 48 8B 80 E0 01 00 00           -  mov rax,[rax+000001E0]
+249842F0452: 48 89 85 48 FF FF FF           -  mov [rbp-000000B8],rax
+249842F0459: 41 83 3F 00                    -  cmp dword ptr [r15],00
+249842F045D: 49 8B 47 18                    -  mov rax,[r15+18]
+// ---------- INJECTING HERE ----------
+249842F0461: 48 63 40 68                    -  movsxd  rax,dword ptr [rax+68]
+249842F0465: 89 45 98                       -  mov [rbp-68],eax
+// ---------- DONE INJECTING  ----------
+249842F0468: 48 8B CD                       -  mov rcx,rbp
+249842F046B: 48 83 C1 98                    -  add rcx,-68
+249842F046F: 48 83 EC 20                    -  sub rsp,20
+249842F0473: 49 BB E0 1C E3 F3 49 02 00 00  -  mov r11,00000249F3E31CE0
+249842F047D: 41 FF D3                       -  call r11
+249842F0480: 48 83 C4 20                    -  add rsp,20
+249842F0484: 4C 8B C0                       -  mov r8,rax
+249842F0487: 48 8B 85 48 FF FF FF           -  mov rax,[rbp-000000B8]
+249842F048E: 48 8B C8                       -  mov rcx,rax
+249842F0491: BA 2B 00 00 00                 -  mov edx,0000002B
+}
+{
+// ORIGINAL CODE - INJECTION POINT: WindowManager:ChangeClassTree+7f
+
+249842FFA63: 48 8B 80 D0 04 00 00           -  mov rax,[rax+000004D0]
+249842FFA6A: 48 8B C8                       -  mov rcx,rax
+249842FFA6D: 48 83 EC 20                    -  sub rsp,20
+249842FFA71: 83 38 00                       -  cmp dword ptr [rax],00
+249842FFA74: 49 BB B0 EC E0 F3 49 02 00 00  -  mov r11,00000249F3E0ECB0
+249842FFA7E: 41 FF D3                       -  call r11
+249842FFA81: 48 83 C4 20                    -  add rsp,20
+249842FFA85: 48 8B C8                       -  mov rcx,rax
+249842FFA88: 83 39 00                       -  cmp dword ptr [rcx],00
+249842FFA8B: 48 8B 40 18                    -  mov rax,[rax+18]
+// ---------- INJECTING HERE ----------
+249842FFA8F: 48 63 40 68                    -  movsxd  rax,dword ptr [rax+68]
+249842FFA93: 89 45 C0                       -  mov [rbp-40],eax
+// ---------- DONE INJECTING  ----------
+249842FFA96: 48 8B CD                       -  mov rcx,rbp
+249842FFA99: 48 83 C1 C0                    -  add rcx,-40
+249842FFA9D: 48 83 EC 20                    -  sub rsp,20
+249842FFAA1: 49 BB E0 1C E3 F3 49 02 00 00  -  mov r11,00000249F3E31CE0
+249842FFAAB: 41 FF D3                       -  call r11
+249842FFAAE: 48 83 C4 20                    -  add rsp,20
+249842FFAB2: 4C 8B C0                       -  mov r8,rax
+249842FFAB5: 48 8B 45 90                    -  mov rax,[rbp-70]
+249842FFAB9: 48 8B C8                       -  mov rcx,rax
+249842FFABC: BA 1E 00 00 00                 -  mov edx,0000001E
+}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>76</ID>
+          <Description>"Get item all 90 (Warning: Includes Debug items)"</Description>
+          <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1000,item_quantity)
+label(return)
+
+newmem:
+  mov dword ptr [rax],#90
+  readmem(item_quantity,6) // access item quantity
+  jmp return
+
+item_quantity:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+item_quantity:
+  db 4C 63 38 49 8B C7
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: UnitManager:GetItemList+69
+
+249842FD663: 4C 8B F0                       -  mov r14,rax
+249842FD666: 45 33 ED                       -  xor r13d,r13d
+249842FD669: E9 94 00 00 00                 -  jmp 249842FD702
+249842FD66E: 66 90                          -  nop 
+249842FD670: 48 8B 47 20                    -  mov rax,[rdi+20]
+249842FD674: 48 8B 40 38                    -  mov rax,[rax+38]
+249842FD678: 49 63 CD                       -  movsxd  rcx,r13d
+249842FD67B: 39 48 18                       -  cmp [rax+18],ecx
+249842FD67E: 0F 86 BD 00 00 00              -  jbe 249842FD741
+249842FD684: 48 8D 44 88 20                 -  lea rax,[rax+rcx*4+20]
+// ---------- INJECTING HERE ----------
+249842FD689: 4C 63 38                       -  movsxd  r15,dword ptr [rax]
+249842FD68C: 49 8B C7                       -  mov rax,r15
+// ---------- DONE INJECTING  ----------
+249842FD68F: 48 8B 4F 20                    -  mov rcx,[rdi+20]
+249842FD693: 48 8B 49 40                    -  mov rcx,[rcx+40]
+249842FD697: 49 63 D5                       -  movsxd  rdx,r13d
+249842FD69A: 39 51 18                       -  cmp [rcx+18],edx
+249842FD69D: 0F 86 97 00 00 00              -  jbe 249842FD73A
+249842FD6A3: 48 8D 4C 91 20                 -  lea rcx,[rcx+rdx*4+20]
+249842FD6A8: 48 63 09                       -  movsxd  rcx,dword ptr [rcx]
+249842FD6AB: 4C 8B F8                       -  mov r15,rax
+249842FD6AE: 44 03 F9                       -  add r15d,ecx
+249842FD6B1: 49 8B C7                       -  mov rax,r15
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>77</ID>
+              <Description>"REQ: Check Item"</Description>
+              <LastState Value="" RealAddress="00000000"/>
+              <Color>000080</Color>
+              <GroupHeader>1</GroupHeader>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>30</ID>
+          <Description>"Unit stats editor"</Description>
+          <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+          <LastState/>
+          <Color>FF0000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+
+alloc(newmem,$1000,battle_base_aob)
+label(code_battle_base)
+label(code_stats)
+label(code_battle_stats)
+registersymbol(code_battle_base)
+registersymbol(battle_base_ptr)
+registersymbol(code_stats)
+registersymbol(stats_ptr)
+registersymbol(code_battle_stats)
+
+
+newmem:
+  code_battle_base:
+    mov [battle_base_ptr],rcx
+    readmem(battle_base_aob,7) // access hp (check unit stats)
+    jmp return
+    align 08 CC
+  battle_base_ptr:
+    dq 0
+    align 10 CC
+
+  code_stats:
+    mov [stats_ptr],rax
+    readmem(stats_aob,7) // access exp (check commander info)
+    jmp return1
+    align 08 CC
+  stats_ptr:
+    dq 0
+    align 10 CC
+
+  code_battle_stats:
+    mov [stats_ptr],rax
+    readmem(battle_stats_aob,7) // access hp (check unit stats)
+    jmp return2
+
+battle_base_aob:
+  jmp code_battle_base
+  nop 2
+return:
+
+stats_aob:
+  jmp code_stats
+  nop 2
+return1:
+
+battle_stats_aob:
+  jmp code_battle_stats
+  nop 2
+return2:
+
+[DISABLE]
+
+battle_base_aob:
+  db 48 63 49 40 4C 8B F0
+
+stats_aob:
+  db 48 63 40 5C 89 45 D4
+
+battle_stats_aob:
+  db 48 63 40 60 48 8B D0
+
+unregistersymbol(code_battle_base)
+unregistersymbol(battle_base_ptr)
+unregistersymbol(code_stats)
+unregistersymbol(stats_ptr)
+unregistersymbol(code_battle_stats)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: UnitCTRL:GetHP_MAXDisplay+21
+
+206930BE5E0: 55                             -  push rbp
+206930BE5E1: 48 8B EC                       -  mov rbp,rsp
+206930BE5E4: 57                             -  push rdi
+206930BE5E5: 41 56                          -  push r14
+206930BE5E7: 48 83 EC 20                    -  sub rsp,20
+206930BE5EB: 48 8B F9                       -  mov rdi,rcx
+206930BE5EE: 48 89 55 E0                    -  mov [rbp-20],rdx
+206930BE5F2: 48 8B 47 30                    -  mov rax,[rdi+30]
+206930BE5F6: 48 63 80 80 00 00 00           -  movsxd  rax,dword ptr [rax+00000080]
+206930BE5FD: 48 8B 4F 38                    -  mov rcx,[rdi+38]
+// ---------- INJECTING HERE ----------
+206930BE601: 48 63 49 40                    -  movsxd  rcx,dword ptr [rcx+40]
+206930BE605: 4C 8B F0                       -  mov r14,rax
+// ---------- DONE INJECTING  ----------
+206930BE608: 44 03 F1                       -  add r14d,ecx
+206930BE60B: 49 8B C6                       -  mov rax,r14
+206930BE60E: 48 89 45 D8                    -  mov [rbp-28],rax
+206930BE612: 48 8B CF                       -  mov rcx,rdi
+206930BE615: BA 04 00 00 00                 -  mov edx,00000004
+206930BE61A: 45 33 C0                       -  xor r8d,r8d
+206930BE61D: 48 83 EC 20                    -  sub rsp,20
+206930BE621: 49 BB 50 3F 0B 93 06 02 00 00  -  mov r11,00000206930B3F50
+206930BE62B: 41 FF D3                       -  call r11
+206930BE62E: 48 83 C4 20                    -  add rsp,20
+}
+{
+// ORIGINAL CODE - INJECTION POINT: WindowManager:ChangeCommanderInfo+5d4
+
+249842F0565: 48 8B 85 58 FF FF FF           -  mov rax,[rbp-000000A8]
+249842F056C: 48 8B C8                       -  mov rcx,rax
+249842F056F: BA 2A 00 00 00                 -  mov edx,0000002A
+249842F0574: 48 83 EC 20                    -  sub rsp,20
+249842F0578: 83 38 00                       -  cmp dword ptr [rax],00
+249842F057B: 49 BB 20 56 2A 84 49 02 00 00  -  mov r11,00000249842A5620
+249842F0585: 41 FF D3                       -  call r11
+249842F0588: 48 83 C4 20                    -  add rsp,20
+249842F058C: 41 83 3F 00                    -  cmp dword ptr [r15],00
+249842F0590: 49 8B 47 18                    -  mov rax,[r15+18]
+// ---------- INJECTING HERE ----------
+249842F0594: 48 63 40 5C                    -  movsxd  rax,dword ptr [rax+5C]
+249842F0598: 89 45 D4                       -  mov [rbp-2C],eax
+// ---------- DONE INJECTING  ----------
+249842F059B: 49 8B CF                       -  mov rcx,r15
+249842F059E: 33 D2                          -  xor edx,edx
+249842F05A0: 48 83 EC 20                    -  sub rsp,20
+249842F05A4: 41 83 3F 00                    -  cmp dword ptr [r15],00
+249842F05A8: 49 BB 30 1D 2F 84 49 02 00 00  -  mov r11,00000249842F1D30
+249842F05B2: 41 FF D3                       -  call r11
+249842F05B5: 48 83 C4 20                    -  add rsp,20
+249842F05B9: 89 45 D0                       -  mov [rbp-30],eax
+249842F05BC: 49 8B CF                       -  mov rcx,r15
+249842F05BF: BA 01 00 00 00                 -  mov edx,00000001
+}
+{
+// ORIGINAL CODE - INJECTION POINT: UnitCTRL:GetHPDisplay+f
+
+249A3C7EAE7: 00 00                          -  add [rax],al
+249A3C7EAE9: 00 00                          -  add [rax],al
+249A3C7EAEB: 00 00                          -  add [rax],al
+249A3C7EAED: 00 00                          -  add [rax],al
+249A3C7EAEF: 00 48 83                       -  add [rax-7D],cl
+249A3C7EAF2: EC                             -  in al,dx
+249A3C7EAF3: 08 48 89                       -  or [rax-77],cl
+249A3C7EAF6: 0C 24                          -  or al,24
+249A3C7EAF8: 48 8B C1                       -  mov rax,rcx
+249A3C7EAFB: 48 8B 40 18                    -  mov rax,[rax+18]
+// ---------- INJECTING HERE ----------
+249A3C7EAFF: 48 63 40 60                    -  movsxd  rax,dword ptr [rax+60]
+249A3C7EB03: 48 8B D0                       -  mov rdx,rax
+// ---------- DONE INJECTING  ----------
+249A3C7EB06: B9 DE 03 00 00                 -  mov ecx,000003DE
+249A3C7EB0B: 81 FA DE 03 00 00              -  cmp edx,000003DE
+249A3C7EB11: 48 0F 4D C1                    -  cmovge rax,rcx
+249A3C7EB15: 48 83 C4 08                    -  add rsp,08
+249A3C7EB19: C3                             -  ret
+249A3C7EB1A: 00 00                          -  add [rax],al
+249A3C7EB1C: 00 00                          -  add [rax],al
+249A3C7EB1E: 00 00                          -  add [rax],al
+249A3C7EB20: 00 00                          -  add [rax],al
+249A3C7EB22: 00 00                          -  add [rax],al
+}
+</AssemblerScript>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>50</ID>
+              <Description>"REQ: Check Unit stats"</Description>
+              <LastState Value="" RealAddress="00000000"/>
+              <Color>000080</Color>
+              <GroupHeader>1</GroupHeader>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>31</ID>
+              <Description>"Pointer"</Description>
+              <ShowAsHex>1</ShowAsHex>
+              <VariableType>8 Bytes</VariableType>
+              <Address>battle_base_ptr</Address>
+              <Offsets>
+                <Offset>0</Offset>
+              </Offsets>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>32</ID>
+                  <Description>"searchName"</Description>
+                  <VariableType>String</VariableType>
+                  <Length>16</Length>
+                  <Unicode>1</Unicode>
+                  <CodePage>0</CodePage>
+                  <ZeroTerminate>1</ZeroTerminate>
+                  <Address>battle_base_ptr</Address>
+                  <Offsets>
+                    <Offset>14</Offset>
+                    <Offset>20</Offset>
+                  </Offsets>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>33</ID>
+                  <Description>"charactorID"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+30</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>34</ID>
+                  <Description>"entryFlag"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+34</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>35</ID>
+                  <Description>"levelUpType"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+3C</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>36</ID>
+                  <Description>"HP_MAX"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+40</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>37</ID>
+                  <Description>"MP_MAX"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+44</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>38</ID>
+                  <Description>"p_Attack"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+48</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>39</ID>
+                  <Description>"p_Defense"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+4C</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>40</ID>
+                  <Description>"m_Attack"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+50</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>41</ID>
+                  <Description>"m_Defense"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+54</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>42</ID>
+                  <Description>"dexterity"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+58</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>43</ID>
+                  <Description>"agility"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+5C</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>44</ID>
+                  <Description>"luck"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+60</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>45</ID>
+                  <Description>"magicRegist"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+64</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>51</ID>
+              <Description>"Pointer"</Description>
+              <ShowAsHex>1</ShowAsHex>
+              <VariableType>8 Bytes</VariableType>
+              <Address>stats_ptr</Address>
+              <Offsets>
+                <Offset>0</Offset>
+              </Offsets>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>52</ID>
+                  <Description>"playerType"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+3C</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>53</ID>
+                  <Description>"moveState"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+48</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>54</ID>
+                  <Description>"mapPosX"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+50</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>55</ID>
+                  <Description>"mapPosY"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+54</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>56</ID>
+                  <Description>"Level"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+58</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>57</ID>
+                  <Description>"exp"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+5C</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>58</ID>
+                  <Description>"HP"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+60</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>59</ID>
+                  <Description>"MP"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+64</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>60</ID>
+                  <Description>"classPoint"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+68</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>61</ID>
+                  <Description>"killCount"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+6C</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>65</ID>
+                  <Description>"AI_number"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+A8</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>66</ID>
+                  <Description>"AI_TargetUnit"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+AC</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>67</ID>
+                  <Description>"AI_PosX"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+B0</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>68</ID>
+                  <Description>"AI_PosY"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+B4</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>69</ID>
+                  <Description>"AI_Turn"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+B8</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>70</ID>
+                  <Description>"AI_Data0"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+BC</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>71</ID>
+                  <Description>"AI_Data1"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+C0</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>72</ID>
+                  <Description>"AI_Data2"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+C4</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>62</ID>
+                  <Description>"mercenaryCount"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+C8</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>63</ID>
+                  <Description>"mercenaryID"</Description>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>+CC</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>435</ID>
+          <Description>"For Coders"</Description>
+          <Options moHideChildren="1"/>
+          <LastState Value="" RealAddress="00000000"/>
+          <Color>C0C0C0</Color>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>552</ID>
+              <Description>"Use mono"</Description>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+usemono()
+
+[DISABLE]
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>549</ID>
+              <Description>"Compact mode"</Description>
+              <LastState Activated="1"/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{$lua}
+if syntaxcheck then return end
+--[[
+Credit:
+  mgr.inz.Player (https://forum.cheatengine.org/viewtopic.php?t=570055)
+
+Thanks for the info.
+]]
+local Compact = {}
+
+Compact[1], Compact[2], Compact[3] = 'Compact View Mode', 'Full View Mode', 'yes'
+
+function Compact.addMenu()
+  if compactManualReadyExists then return end
+  local parent = getMainForm().Menu.Items
+  compactMenuItem = createMenuItem(parent)
+  parent.add(compactMenuItem)
+  compactMenuItem.Caption  = Compact[1]
+  compactManualReadyExists = Compact[3]
+  compactMenuItem.OnClick  = Compact.cycleFull
+end
+
+function Compact.cycleFull()
+  local state = not (compactMenuItem.Caption == Compact[1])
+  compactMenuItem.Caption = state and Compact[1] or Compact[2]
+  getMainForm().Splitter1.Visible = state
+  getMainForm().Panel4.Visible    = state
+  getMainForm().Panel5.Visible    = state
+end
+
+[ENABLE]
+
+return Compact.addMenu()
+
+[DISABLE]
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>551</ID>
+              <Description>"Langrisser I &amp; II on Steam"</Description>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+
+local _author = 'DhaosCollider'
+local _type   = 'aobscan'
+local _msg    = 'Author: '.._author..'\nError : '.._type..' '
+
+local DhaosCollider = {[[
+// Infinite HP
+aobscanregion(heal_hp_aob,UnitCTRL:AddHP,UnitCTRL:AddHP+a7,03 4D E8 89 48 60) // should be unique
+registersymbol(heal_hp_aob)
+]],[[
+// Infinite MP
+aobscanregion(heal_mp_aob,UnitCTRL:AddMP,UnitCTRL:AddMP+72,03 4D E8 89 48 64) // should be unique
+registersymbol(heal_mp_aob)
+]],[[
+// Infinite movement (Commander only)
+aobscanregion(inf_move_aob,WindowManager:SetUnitSimpleInfo,WindowManager:SetUnitSimpleInfo+13df,48 63 40 58 89 45 B0) // should be unique
+registersymbol(inf_move_aob)
+]],[[
+// Physical damage multiplier
+aobscanregion(damage_aob,BattleSceneManager:MakeBattleSceneInfo,BattleSceneManager:MakeBattleSceneInfo+34d5,48 8D 44 90 20 89 08 41 83 FD) // should be unique
+registersymbol(damage_aob)
+]],[[
+// Attack spell damage multiplier
+aobscanregion(magic_damage_aob,BattleSceneManager:MakeMagicSceneInfo,BattleSceneManager:MakeMagicSceneInfo+80c,98 49 63 D5 39 50 18 0F 86 ** ** ** ** 48 8D 44 90 20) // should be unique
+registersymbol(magic_damage_aob)
+]],[[
+// Get EXP multiplier
+aobscanregion(get_exp_aob,MapMain:CheckUnitEXP,MapMain:CheckUnitEXP+36a,F7 F9 89 45 C8) // should be unique
+registersymbol(get_exp_aob)
+]],[[
+// Get Gold multiplier
+aobscanregion(get_money_aob,MapMain:CheckUnitEXP,MapMain:CheckUnitEXP+36a,78 89 45 C8 83 3F 00) // should be unique
+registersymbol(get_money_aob)
+]],[[
+// Infinite Class points
+aobscanregion(cp_max,UnitCTRL:AddClassPoint,UnitCTRL:AddClassPoint+59,3D 10 27 00 00 7C)
+aobscanregion(cp_max1,WindowManager:ChangeCommanderInfo,WindowManager:ChangeCommanderInfo+1627,48 63 40 68 89 45 98) // should be unique // should be unique
+aobscanregion(cp_max2,WindowManager:ChangeClassTree,WindowManager:ChangeClassTree+b52,48 63 40 68 89 45 C0) // should be unique
+registersymbol(cp_max)
+registersymbol(cp_max1)
+registersymbol(cp_max2)
+]]}
+
+for i = 1, #DhaosCollider do
+  if autoAssemble(DhaosCollider[i]) == false then print(_msg..DhaosCollider[i]) end
+end
+
+local _author = 'Dhaos'
+local _type   = 'aobscan'
+local _msg    = 'Author: '.._author..'\nError : '.._type..' '
+
+local Dhaos = {[[
+// Get item all 90 (Warning: Includes Debug items)
+aobscanregion(item_quantity,UnitManager:GetItemList,UnitManager:GetItemList+102,4C 63 38 49 8B C7)
+registersymbol(item_quantity)
+]],[[
+// Unit stats editor
+aobscanregion(battle_base_aob,UnitCTRL:GetHP_MAXDisplay,UnitCTRL:GetHP_MAXDisplay+17a,48 63 49 40 4C 8B F0)
+aobscanregion(stats_aob,WindowManager:ChangeCommanderInfo,WindowManager:ChangeCommanderInfo+1627,48 63 40 5C 89 45 D4)
+aobscanregion(battle_stats_aob,UnitCTRL:GetHPDisplay,UnitCTRL:GetHPDisplay+29,48 63 40 60 48 8B D0) // should be unique
+registersymbol(battle_base_aob)
+registersymbol(stats_aob)
+registersymbol(battle_stats_aob)
+]]}
+
+for i = 1, #Dhaos do
+  if autoAssemble(Dhaos[i]) == false then print(_msg..Dhaos[i]) end
+end
+{$asm}
+[DISABLE]
+// Infinite HP
+unregistersymbol(heal_hp_aob)
+// Infinite MP
+unregistersymbol(heal_mp_aob)
+// Infinite movement (Commander only)
+unregistersymbol(inf_move_aob)
+// Physical damage multiplier
+unregistersymbol(damage_aob)
+// Attack spell damage multiplier
+unregistersymbol(magic_damage_aob)
+// Get EXP multiplier
+unregistersymbol(get_exp_aob)
+// Get Gold multiplier
+unregistersymbol(get_money_aob)
+// Infinite Class points
+unregistersymbol(cp_max)
+unregistersymbol(cp_max1)
+unregistersymbol(cp_max2)
+// Get item all 90 (Warning: Includes Debug items)
+unregistersymbol(item_quantity)
+// Unit stats editor
+unregistersymbol(battle_base_aob)
+unregistersymbol(stats_aob)
+unregistersymbol(battle_stats_aob)
+
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>86</ID>
+              <Description>"Get Gold multiplier (No visualized)"</Description>
+              <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+assert(StWork:AddMoney,48 83 EC 08 48 89 0C 24)
+alloc(newmem,$1024,StWork:AddMoney)
+label(return)
+registersymbol(money_multiplier)
+
+newmem:
+  pushf
+  test ecx,ecx
+  jl @f
+  imul ecx,[money_multiplier]
+@@:
+  popf
+  readmem(StWork:AddMoney,8)
+  jmp return
+
+money_multiplier:
+  db #4
+
+StWork:AddMoney:
+  jmp newmem
+  nop 3
+return:
+
+[DISABLE]
+
+StWork:AddMoney:
+  db 48 83 EC 08 48 89 0C 24
+  // sub rsp,08
+  // mov [rsp],rcx
+
+unregistersymbol(money_multiplier)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: StWork:AddMoney
+
+249A3C6F4F9: 01 00                          -  add [rax],eax
+249A3C6F4FB: 00 01                          -  add [rcx],al
+249A3C6F4FD: 04 03                          -  add al,03
+249A3C6F4FF: 05 00 00 04 53                 -  add eax,53040000
+249A3C6F504: 01 50 00                       -  add [rax+00],edx
+249A3C6F507: 00 00                          -  add [rax],al
+249A3C6F509: 00 00                          -  add [rax],al
+249A3C6F50B: 00 00                          -  add [rax],al
+249A3C6F50D: 00 00                          -  add [rax],al
+249A3C6F50F: 00 48                          - db 00 48  // SHORTENED TO HIT INJECTION FROM:  add [rax-7D],cl
+// ---------- INJECTING HERE ----------
+249A3C6F511: 83 EC 08                       -  sub esp,08
+249A3C6F514: 48 89 0C 24                    -  mov [rsp],rcx
+// ---------- DONE INJECTING  ----------
+249A3C6F518: 48 B8 10 FE 93 F3 49 02 00 00  -  mov rax,00000249F393FE10
+249A3C6F522: 48 8B 00                       -  mov rax,[rax]
+249A3C6F525: 48 63 88 94 00 00 00           -  movsxd  rcx,dword ptr [rax+00000094]
+249A3C6F52C: 03 0C 24                       -  add ecx,[rsp]
+249A3C6F52F: 89 88 94 00 00 00              -  mov [rax+00000094],ecx
+249A3C6F535: 48 B8 10 FE 93 F3 49 02 00 00  -  mov rax,00000249F393FE10
+249A3C6F53F: 48 8B 00                       -  mov rax,[rax]
+249A3C6F542: 48 63 80 94 00 00 00           -  movsxd  rax,dword ptr [rax+00000094]
+249A3C6F549: 3D 80 96 98 00                 -  cmp eax,00989680
+249A3C6F54E: 7C 17                          -  jl 249A3C6F567
+}
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>87</ID>
+                  <Description>"Times"</Description>
+                  <VariableType>Byte</VariableType>
+                  <Address>money_multiplier</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>24</ID>
+              <Description>"HP MAX after battle"</Description>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+aobscanregion(heal_hp_aob,UnitCTRL:AddHP,UnitCTRL:AddHP+a7,03 4D E8 89 48 60) // should be unique
+alloc(newmem,$1024,heal_hp_aob)
+label(return)
+registersymbol(heal_hp_aob)
+
+newmem:
+  readmem(heal_hp_aob,3)
+  pushf
+  test ecx,ecx
+  jle @f
+  cmp dword ptr [rax+3C],#2 // enemy unit
+  je @f
+  mov ecx,r15d
+@@:
+  popf
+  readmem(heal_hp_aob+03,3)
+  jmp return
+
+heal_hp_aob:
+  jmp newmem
+  nop
+return:
+
+[DISABLE]
+
+heal_hp_aob:
+  db 03 4D E8 89 48 60
+
+unregistersymbol(heal_hp_aob)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: UnitCTRL:AddHP+37
+
+206CC83AD5B: 48 8B F9                       -  mov rdi,rcx
+206CC83AD5E: 48 89 55 E8                    -  mov [rbp-18],rdx
+206CC83AD62: BA 01 00 00 00                 -  mov edx,00000001
+206CC83AD67: 48 83 EC 20                    -  sub rsp,20
+206CC83AD6B: 49 BB 80 3D 0B 93 06 02 00 00  -  mov r11,00000206930B3D80
+206CC83AD75: 41 FF D3                       -  call r11
+206CC83AD78: 48 83 C4 20                    -  add rsp,20
+206CC83AD7C: 4C 8B F8                       -  mov r15,rax
+206CC83AD7F: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83AD83: 48 63 48 60                    -  movsxd  rcx,dword ptr [rax+60]
+// ---------- INJECTING HERE ----------
+206CC83AD87: 03 4D E8                       -  add ecx,[rbp-18]
+206CC83AD8A: 89 48 60                       -  mov [rax+60],ecx
+// ---------- DONE INJECTING  ----------
+206CC83AD8D: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83AD91: 48 63 40 60                    -  movsxd  rax,dword ptr [rax+60]
+206CC83AD95: 83 F8 FF                       -  cmp eax,-01
+206CC83AD98: 7F 0B                          -  jg 206CC83ADA5
+206CC83AD9A: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83AD9E: C7 40 60 00 00 00 00           -  mov [rax+60],00000000
+206CC83ADA5: 48 8B 47 18                    -  mov rax,[rdi+18]
+206CC83ADA9: 48 63 40 60                    -  movsxd  rax,dword ptr [rax+60]
+206CC83ADAD: 41 3B C7                       -  cmp eax,r15d
+206CC83ADB0: 7E 08                          -  jle 206CC83ADBA
+}
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>64</ID>
+              <Description>"Infinite movement (Reckless AI)"</Description>
+              <LastState/>
+              <Color>808080</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+assert(UnitCTRL:SetMoveState,55 48 8B EC 56)
+alloc(newmem,$1024,UnitCTRL:SetMoveState)
+label(return)
+
+newmem:
+  pushf
+  push rax
+  mov rax,[rcx+18]
+  cmp [rax+3C],#2 // enemy unit
+  je @f
+  xor edx,edx
+@@:
+  pop rax
+  popf
+  readmem(UnitCTRL:SetMoveState,5)
+  jmp return
+
+UnitCTRL:SetMoveState:
+  jmp newmem
+return:
+
+[DISABLE]
+
+UnitCTRL:SetMoveState:
+  db 55 48 8B EC 56
+  // push rbp
+  // mov rbp,rsp
+  // push rsi
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: UnitCTRL:SetMoveState
+
+206930E12AD: 4F ED                          -  in eax,dx
+206930E12AF: D4 ED                          -  aam -13
+206930E12B1: 08 70 E0                       -  or [rax-20],dh
+206930E12B4: E4 8E                          -  in al,-72
+206930E12B6: 06                             -  push es
+206930E12B7: 02 00                          -  add al,[rax]
+206930E12B9: 00 00                          -  add [rax],al
+206930E12BB: 00 00                          -  add [rax],al
+206930E12BD: 00 00                          -  add [rax],al
+// ---------- INJECTING HERE ----------
+206930E12BF: 00 55                          - db 00 55  // SHORTENED TO HIT INJECTION FROM:  add [rbp+48],dl
+206930E12C1: 48 8B EC                       -  mov rbp,rsp
+206930E12C4: 56                             -  push rsi
+// ---------- DONE INJECTING  ----------
+206930E12C5: 57                             -  push rdi
+206930E12C6: 48 8B F9                       -  mov rdi,rcx
+206930E12C9: 48 8B F2                       -  mov rsi,rdx
+206930E12CC: 48 8B 47 18                    -  mov rax,[rdi+18]
+206930E12D0: 89 70 48                       -  mov [rax+48],esi
+206930E12D3: 83 FE 03                       -  cmp esi,03
+206930E12D6: 75 1F                          -  jne 206930E12F7
+206930E12D8: 48 8B CF                       -  mov rcx,rdi
+206930E12DB: BA 01 00 00 00                 -  mov edx,00000001
+206930E12E0: 48 83 EC 20                    -  sub rsp,20
+}
+</AssemblerScript>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
