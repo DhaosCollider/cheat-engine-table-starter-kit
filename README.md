@@ -1,4 +1,4 @@
 # Cheat Engine Starter Kit
-  *Outputs an aob scan error.
+  *　Outputs an aob scan error.
   *
   *
