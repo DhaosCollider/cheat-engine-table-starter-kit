@@ -1,1 +1,1 @@
-# ce_starter_kit
+# CE Starter Kit
