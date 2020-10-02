@@ -1,7 +1,6 @@
-# CE Starter Kit
-
-Options:
-・
-・
-・
-・
+# Cheat Engine Starter Kit
+ 
+# Options
+  *
+  *
+  *
