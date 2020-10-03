@@ -1152,6 +1152,7 @@ dealloc(newmem)
               <AssemblerScript>[ENABLE]
 
 usemono()
+nop
 
 [DISABLE]
 </AssemblerScript>
